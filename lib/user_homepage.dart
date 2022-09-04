@@ -112,7 +112,7 @@ class _UserHomePageState extends State<UserHomePage> {
                                       image: NetworkImage(
                                         data['img'],
                                       ),
-                                      fit: BoxFit.cover)),
+                                      fit: BoxFit.fill)),
                             ),
                           ],
                         ),

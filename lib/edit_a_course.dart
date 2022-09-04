@@ -5,38 +5,63 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class AddNewCourse extends StatefulWidget {
-  const AddNewCourse({Key? key}) : super(key: key);
+class EditACourse extends StatefulWidget {
+  EditACourse(
+      {Key? key,
+      required this.document,
+      required this.CourseName,
+      required this.CourseFee,
+      required this.img})
+      : super(key: key);
+  String? CourseName, CourseFee, document, img;
 
   @override
-  State<AddNewCourse> createState() => _AddNewCourseState();
+  State<EditACourse> createState() => _EditACourseState();
 }
 
-class _AddNewCourseState extends State<AddNewCourse> {
+class _EditACourseState extends State<EditACourse> {
   final TextEditingController _coursenameController = TextEditingController();
   final TextEditingController _coursefeeController = TextEditingController();
   XFile? _courseImage;
   chosseImageFromGC() async {
     ImagePicker picker = ImagePicker();
     _courseImage = await picker.pickImage(source: ImageSource.gallery);
-    setState(() {});               
+    setState(() {});
   }
 
   String? imageUrl;
-  writeData() async {
-    File imageFile = File(_courseImage!.path);
-    FirebaseStorage storage = FirebaseStorage.instance;
-    UploadTask uploadTask =
-        storage.ref('course').child(_courseImage!.name).putFile(imageFile);
-    TaskSnapshot snapshot = await uploadTask;
-    imageUrl = await snapshot.ref.getDownloadURL();
-    CollectionReference coursedata =
-        FirebaseFirestore.instance.collection("course");
-    coursedata.add({
-      'course_name': _coursenameController.text,
-      'course_fee': _coursefeeController.text,
-      'img': imageUrl,
-    });
+  writeUpdateData() async {
+    if (_courseImage == null) {
+      CollectionReference coursedata =
+          FirebaseFirestore.instance.collection("course");
+      coursedata.doc(widget.document).update({
+        'course_name': _coursenameController.text,
+        'course_fee': _coursefeeController.text,
+        'img': widget.img,
+      });
+    } else {
+      File imageFile = File(_courseImage!.path);
+      FirebaseStorage storage = FirebaseStorage.instance;
+      UploadTask uploadTask =
+          storage.ref('course').child(_courseImage!.name).putFile(imageFile);
+      TaskSnapshot snapshot = await uploadTask;
+      imageUrl = await snapshot.ref.getDownloadURL();
+      CollectionReference coursedata =
+          FirebaseFirestore.instance.collection("course");
+      coursedata.doc(widget.document).update({
+        'course_name': _coursenameController.text,
+        'course_fee': _coursefeeController.text,
+        'img': imageUrl,
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    _coursenameController.text = widget.CourseName!;
+    _coursefeeController.text = widget.CourseFee!;
+    // TODO: implement initState
+    super.initState();
   }
 
   @override
@@ -80,11 +105,16 @@ class _AddNewCourseState extends State<AddNewCourse> {
             ),
             Expanded(
                 child: _courseImage == null
-                    ? IconButton(
-                        onPressed: () {
-                          chosseImageFromGC();
-                        },
-                        icon: const Icon(Icons.photo),
+                    ? Stack(
+                        children: [
+                          Image.network("${widget.img}"),
+                          IconButton(
+                            onPressed: () {
+                              chosseImageFromGC();
+                            },
+                            icon: const Icon(Icons.photo),
+                          )
+                        ],
                       )
                     : Image.file(File(_courseImage!.path))),
             const SizedBox(
@@ -92,7 +122,7 @@ class _AddNewCourseState extends State<AddNewCourse> {
             ),
             ElevatedButton(
                 onPressed: () {
-                  writeData();
+                  writeUpdateData();
                   Navigator.of(context).pop();
                 },
                 child: const Text("Add Data")),
