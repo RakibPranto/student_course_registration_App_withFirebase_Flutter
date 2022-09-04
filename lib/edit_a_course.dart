@@ -1,4 +1,4 @@
-import 'dart:io';
+mimport 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -125,7 +125,7 @@ class _EditACourseState extends State<EditACourse> {
                   writeUpdateData();
                   Navigator.of(context).pop();
                 },
-                child: const Text("Add Data")),
+                child: const Text("Update")),
           ],
         ),
       ),
