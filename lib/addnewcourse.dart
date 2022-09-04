@@ -19,7 +19,7 @@ class _AddNewCourseState extends State<AddNewCourse> {
   chosseImageFromGC() async {
     ImagePicker picker = ImagePicker();
     _courseImage = await picker.pickImage(source: ImageSource.gallery);
-    setState(() {});
+    setState(() {});               
   }
 
   String? imageUrl;
